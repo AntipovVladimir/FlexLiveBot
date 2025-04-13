@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FlexLiveBot", "FlexLiveBot\FlexLiveBot.csproj", "{8BEEA959-2681-4574-85E2-A9E144F07F69}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{4EA5F4D0-7D53-4AA8-A9B9-FF9591CEF491}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8BEEA959-2681-4574-85E2-A9E144F07F69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BEEA959-2681-4574-85E2-A9E144F07F69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BEEA959-2681-4574-85E2-A9E144F07F69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BEEA959-2681-4574-85E2-A9E144F07F69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4EA5F4D0-7D53-4AA8-A9B9-FF9591CEF491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EA5F4D0-7D53-4AA8-A9B9-FF9591CEF491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EA5F4D0-7D53-4AA8-A9B9-FF9591CEF491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EA5F4D0-7D53-4AA8-A9B9-FF9591CEF491}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
