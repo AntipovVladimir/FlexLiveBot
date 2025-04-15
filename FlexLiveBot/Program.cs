@@ -90,12 +90,13 @@ async Task<string> ProcessChatAdmins(long chatId)
         channelSettings.ChatAdmins = new List<long>();
     channelSettings.ChatAdmins.Clear();
     channelSettings.ChatAdmins.AddRange(adminuids);
-    
+
     if (chatinfo.Type is ChatType.Channel or ChatType.Group or ChatType.Supergroup)
     {
         channelSettings.ChatTitle = chatinfo.Title ?? string.Empty;
         channelSettings.UserName = chatinfo.Username ?? string.Empty;
     }
+
     settings.Save();
     return stringBuilder.ToString();
 }
@@ -125,7 +126,7 @@ async Task GetChatAdmins(string[] strings, Message message)
     if (long.TryParse(strings[1], out long chatId))
         result = await ProcessChatAdmins(chatId);
     else
-        result = "getadmins chatId parse error"; 
+        result = "getadmins chatId parse error";
 
     await bot.SendMessage(message.Chat, result, messageThreadId: message.MessageThreadId);
 }
@@ -387,14 +388,33 @@ async Task AntispamPunish(ChannelSettings cs, Message msg, bool isFromReport = f
         Log.Error(ex.StackTrace);
     }
 
-    MessageId reportMessageId = await bot.CopyMessage(chatId: runtimeSettings.ReportUID, msg.Chat.Id, msg.MessageId);
+    MessageId reportMessageId = null;
+    try
+    {
+        reportMessageId = await bot.CopyMessage(chatId: runtimeSettings.ReportUID, msg.Chat.Id, msg.MessageId);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex.Message);
+        Log.Error(ex.StackTrace);
+    }
 
-    await bot.DeleteMessage(msg.Chat.Id, msg.MessageId);
+    try
+    {
+        await bot.DeleteMessage(msg.Chat.Id, msg.MessageId);
+    }
+    catch (Exception ex)
+    {
+        Log.Error(ex.Message);
+        Log.Error(ex.StackTrace);
+    }
+
     if (cs.AntiSpam.ReportEnabled)
     {
         StringBuilder rsb = new();
         rsb.Append(string.Format("Пользователь {0} забанен в чате {1} за спам. ", GetUserFromForReply(msg.From), cs.ChatTitle));
-        rsb.Append(string.Format(runtimeSettings.ReportLink, reportMessageId.Id));
+        if (reportMessageId is not null)
+            rsb.Append(string.Format(runtimeSettings.ReportLink, reportMessageId.Id));
         if (cs.AntiSpam.ReportChatId == 0 || cs.AntiSpam.ReportChatId == msg.Chat.Id)
             await PostToChat(msg.Chat.Id, msg.MessageThreadId, string.Format("Пользователь {0} забанен за спам.", GetUserFromForReply(msg.From)));
         else
@@ -729,7 +749,6 @@ bool CheckIfAdminOfChat(long chatId, long userId)
     if (!settings.Channels.ContainsKey(chatId)) return false;
     if (settings.Channels[chatId].ChatAdmins is null)
         ProcessChatAdmins(chatId).Wait();
-        //settings.Channels[chatId].ChatAdmins = new List<long>();
     return settings.Channels[chatId].ChatAdmins.Contains(userId);
 }
 
@@ -826,10 +845,10 @@ async Task TaskOnMessage(Message msg, UpdateType type)
     bool haveLocation = msg.Type == MessageType.Location || msg.Location is not null;
     bool havePhoto = msg.Type == MessageType.Photo || msg.Photo is not null;
     bool haveContact = msg.Type == MessageType.Contact || msg.Contact is not null;
-    
+
     if (msg.Text is null && !string.IsNullOrEmpty(msg.Caption)) msg.Text = msg.Caption;
     bool haveText = msg.Text is not null;
-    
+
     StringBuilder sb = new();
     sb.AppendLine(string.Format("{0} type:{1} msgId {2} from {3} in {4}: ", type.ToString(), msg.Type.ToString(), msg.MessageId, msg.From, msg.Chat));
     /* messageType: NewChatMembers, LeftChatMember*/
@@ -863,6 +882,7 @@ async Task TaskOnMessage(Message msg, UpdateType type)
         Log.Info("message is sticker, skip");
         return;
     }
+
     long uid = msg.From.Id;
     if (!CheckIfAdminOfChat(msg.Chat.Id, uid))
     {
@@ -872,6 +892,7 @@ async Task TaskOnMessage(Message msg, UpdateType type)
             await ProcessMessageNoText(msg, sb);
             return;
         }
+
         if (await ProcessMessage(msg, sb)) return;
     }
     else
@@ -884,6 +905,7 @@ async Task TaskOnMessage(Message msg, UpdateType type)
         Log.Info("no text, skip");
         return;
     }
+
     string[] words = msg.Text.Split(' ');
     if (words.Length == 0) return;
 
