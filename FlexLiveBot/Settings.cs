@@ -86,7 +86,8 @@ public class Settings
 
     public static Settings Load()
     {
-        return JsonHelpers.Load<Settings>(settingsFile);
+        Settings settings = JsonHelpers.Load<Settings>(settingsFile);
+        return settings ?? new Settings();
     }
 
     public ChannelSettings SetupChannelSettings(long chatId)

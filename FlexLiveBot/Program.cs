@@ -86,6 +86,8 @@ async Task<string> ProcessChatAdmins(long chatId)
 
     ChannelSettings channelSettings = settings.SetupChannelSettings(chatId);
     channelSettings.ChatType = chatinfo.Type;
+    if (channelSettings.ChatAdmins is null)
+        channelSettings.ChatAdmins = new List<long>();
     channelSettings.ChatAdmins.Clear();
     channelSettings.ChatAdmins.AddRange(adminuids);
     
@@ -722,7 +724,12 @@ bool CheckIfFriendOfChat(long chatId, long userId)
 
 bool CheckIfAdminOfChat(long chatId, long userId)
 {
+    if (settings.Channels is null)
+        settings.Channels = new Dictionary<long, ChannelSettings>();
     if (!settings.Channels.ContainsKey(chatId)) return false;
+    if (settings.Channels[chatId].ChatAdmins is null)
+        ProcessChatAdmins(chatId).Wait();
+        //settings.Channels[chatId].ChatAdmins = new List<long>();
     return settings.Channels[chatId].ChatAdmins.Contains(userId);
 }
 
