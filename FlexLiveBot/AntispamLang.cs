@@ -15,12 +15,12 @@ public static class Localization
 
     public static string GetText(string locale, int index)
     {
-        if (Locales.ContainsKey(locale))
+        string _locale = ValidateLocale(locale);
+        if (Locales.ContainsKey(_locale))
         {
-            if (Locales[locale].Text.ContainsKey(index))
-                return Locales[locale].Text[index];
+            if (Locales[_locale].Text.ContainsKey(index))
+                return Locales[_locale].Text[index];
         }
-
         string result = string.Format("Error! no localization found for {0} index {1}", locale, index);
         Console.WriteLine(result);
         return result;
