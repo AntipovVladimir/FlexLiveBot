@@ -73,9 +73,11 @@ public class Antispam
     private void LoadStringMap()
     {
         string data = LoadData(file_stringmap);
+        if (string.IsNullOrWhiteSpace(data)) return;
         foreach (string line in data.Split(','))
         {
             string[] kvp = line.ToLower().Split(':');
+            if (kvp.Length == 0 || kvp[0].Length==0) continue;
             if (!stringMapReplacements.ContainsKey(kvp[0][0]))
                 stringMapReplacements.Add(kvp[0][0], kvp[1][0]);
             else
@@ -84,7 +86,6 @@ public class Antispam
                 Console.WriteLine("duplicate key {0} - {1}", kvp[0], x);
             }
         }
-
         Console.WriteLine("Loaded {0} string map replacements", stringMapReplacements.Count);
     }
 

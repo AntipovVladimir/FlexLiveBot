@@ -89,18 +89,18 @@ public class Settings
         return JsonHelpers.Load<Settings>(settingsFile);
     }
 
-    public void SetupChannelSettings(long chatId)
+    public ChannelSettings SetupChannelSettings(long chatId)
     {
-        if (Channels.ContainsKey(chatId))
-            return;
-        Channels.Add(chatId, new()
-        {
-            ChatId = chatId,
-            AntiSpam = new()
+        if (!Channels.ContainsKey(chatId))
+            Channels.Add(chatId, new()
             {
-                Enabled = false, DaysToUnban = 30, SpamScoreValue = 5, SpamScoreForward = 2, PremiumAffix = true, ReportEnabled = true,
-                Solidarity = true, SilentSolidarity = true, AutoCleanup = 3, NewJoinSilentTime = 30, RestrictNewJoinMedia = true, RestrictBlacklisted = true
-            }
-        });
+                ChatId = chatId,
+                AntiSpam = new()
+                {
+                    Enabled = false, DaysToUnban = 30, SpamScoreValue = 5, SpamScoreForward = 2, PremiumAffix = true, ReportEnabled = true,
+                    Solidarity = true, SilentSolidarity = true, AutoCleanup = 3, NewJoinSilentTime = 30, RestrictNewJoinMedia = true, RestrictBlacklisted = true
+                }
+            });
+        return Channels[chatId];
     }
 }

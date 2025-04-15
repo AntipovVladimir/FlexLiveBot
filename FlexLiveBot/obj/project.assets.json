@@ -144,7 +144,7 @@
           "buildTransitive/net6.0/System.Text.Json.targets": {}
         }
       },
-      "Telegram.Bot/22.2.0": {
+      "Telegram.Bot/22.5.0": {
         "type": "package",
         "dependencies": {
           "Microsoft.Extensions.Options.ConfigurationExtensions": "8.0.0",
@@ -159,10 +159,7 @@
           "lib/net6.0/Telegram.Bot.dll": {
             "related": ".pdb;.xml"
           }
-        },
-        "frameworkReferences": [
-          "Microsoft.AspNetCore.App"
-        ]
+        }
       }
     }
   },
@@ -474,12 +471,13 @@
         "useSharedDesignerContext.txt"
       ]
     },
-    "Telegram.Bot/22.2.0": {
-      "sha512": "rEB3eFGV1zC5jiR6YQ3g5kcW1ij1OkVYtZdlFZ5WuGB5yzXCWHwDY5Cio8Q3ACXvLvh9sW4fLrRP22Zn8BEIkA==",
+    "Telegram.Bot/22.5.0": {
+      "sha512": "G65bFYYlR4i01E7U/rieV+TyHltFhsH7X9KvcpHSA1FQHUE68MXiEMkNVtYXFpP7oDem+GG0jk970i9HIP3xIA==",
       "type": "package",
-      "path": "telegram.bot/22.2.0",
+      "path": "telegram.bot/22.5.0",
       "files": [
         ".nupkg.metadata",
+        ".signature.p7s",
         "README.md",
         "lib/net6.0/Telegram.Bot.dll",
         "lib/net6.0/Telegram.Bot.pdb",
@@ -488,7 +486,7 @@
         "lib/netstandard2.0/Telegram.Bot.pdb",
         "lib/netstandard2.0/Telegram.Bot.xml",
         "package-icon.png",
-        "telegram.bot.22.2.0.nupkg.sha512",
+        "telegram.bot.22.5.0.nupkg.sha512",
         "telegram.bot.nuspec"
       ]
     }
@@ -496,7 +494,7 @@
   "projectFileDependencyGroups": {
     "net8.0": [
       "NLog >= 5.3.4",
-      "Telegram.Bot >= 22.2.0"
+      "Telegram.Bot >= 22.5.0"
     ]
   },
   "packageFolders": {
@@ -550,7 +548,7 @@
           },
           "Telegram.Bot": {
             "target": "Package",
-            "version": "[22.2.0, )"
+            "version": "[22.5.0, )"
           }
         },
         "imports": [

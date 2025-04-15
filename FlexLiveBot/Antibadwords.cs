@@ -28,11 +28,11 @@ public class Antibadwords
             Console.WriteLine(ex.Message);
             return;
         }
-
+        if (string.IsNullOrWhiteSpace(data)) return;
         foreach (string line in data.Replace("\r\n", "\n").Split(','))
         {
             string[] kvp = line.Split(':');
-
+            if (kvp.Length == 0 || kvp[0].Length==0) continue;
             if (!stringMapReplacements.ContainsKey(kvp[0][0]))
                 stringMapReplacements.Add(kvp[0][0], kvp[1][0]);
             else
@@ -120,13 +120,11 @@ public class Antibadwords
     {
         try
         {
-            //string data = JsonSerializer.Serialize(BadWords);
             StringBuilder sb = new();
             foreach (string word in m_bad_words)
             {
                 sb.AppendLine(word);
             }
-
             File.WriteAllText(file_badwords, sb.ToString());
         }
         catch (Exception ex)

@@ -27,7 +27,10 @@ EmojiVotes emojiVotes = new();
 Logger Log = LogManager.GetCurrentClassLogger();
 Logger spamLog = LogManager.GetLogger("spamlog");
 CancellationTokenSource cts = new();
-TelegramBotClient bot = new(string.Format("{0}:{1}", runtimeSettings.OwnUID, runtimeSettings.BotToken), cancellationToken: cts.Token);
+string botToken = runtimeSettings.BotToken.Contains(':')
+    ? runtimeSettings.BotToken
+    : string.Format("{0}:{1}", runtimeSettings.OwnUID, runtimeSettings.BotToken);
+TelegramBotClient bot = new(botToken, cancellationToken: cts.Token);
 
 List<long> m_tg_whitelist = new()
 {
@@ -81,19 +84,16 @@ async Task<string> ProcessChatAdmins(long chatId)
         stringBuilder.AppendLine(mem.User.ToString());
     }
 
-    settings.SetupChannelSettings(chatId);
-    if (settings.Channels.ContainsKey(chatId))
-    {
-        settings.Channels[chatId].ChatAdmins.Clear();
-        settings.Channels[chatId].ChatAdmins.AddRange(adminuids);
-    }
-
+    ChannelSettings channelSettings = settings.SetupChannelSettings(chatId);
+    channelSettings.ChatType = chatinfo.Type;
+    channelSettings.ChatAdmins.Clear();
+    channelSettings.ChatAdmins.AddRange(adminuids);
+    
     if (chatinfo.Type is ChatType.Channel or ChatType.Group or ChatType.Supergroup)
     {
-        settings.Channels[chatId].ChatTitle = chatinfo.Title ?? string.Empty;
-        settings.Channels[chatId].UserName = chatinfo.Username ?? string.Empty;
+        channelSettings.ChatTitle = chatinfo.Title ?? string.Empty;
+        channelSettings.UserName = chatinfo.Username ?? string.Empty;
     }
-
     settings.Save();
     return stringBuilder.ToString();
 }
@@ -119,15 +119,13 @@ async Task GetChatAdmins(string[] strings, Message message)
         return;
     }
 
+    string result;
     if (long.TryParse(strings[1], out long chatId))
-    {
-        string sb = await ProcessChatAdmins(chatId);
-        await bot.SendMessage(message.Chat, sb, messageThreadId: message.MessageThreadId);
-    }
+        result = await ProcessChatAdmins(chatId);
     else
-    {
-        await bot.SendMessage(message.Chat, "getadmins chatId parse error", messageThreadId: message.MessageThreadId);
-    }
+        result = "getadmins chatId parse error"; 
+
+    await bot.SendMessage(message.Chat, result, messageThreadId: message.MessageThreadId);
 }
 
 string GetUserFromId(long uid)
@@ -518,9 +516,11 @@ int ProcessForwarded(Message message1, ChannelSettings channelSettings, int spam
 async Task<bool> ProcessMessage(Message message, StringBuilder stringBuilder)
 {
     Log.Info("ProcessMessage");
+    /* сообщения в личке не проверяются на спам, но могут быть расценены как команды, потому выходим без прерывания процесса обработки*/
     if (message.Chat.Type == ChatType.Private || !settings.Channels.ContainsKey(message.Chat.Id)) return false;
     ChannelSettings csettings = settings.Channels[message.Chat.Id];
     if (csettings.ChatType != message.Chat.Type) csettings.ChatType = message.Chat.Type;
+    /* антиспам для каналов типа "лента" не имеет смысла - права на постинг сообщений только у админов, при этом постинг происходит анонимно\от имени группового бота, выходим с прерыванием обработки */
     if (csettings.ChatType == ChatType.Channel) return true;
 
     if (message.From is null || message.Text is null || !csettings.AntiSpam.Enabled || csettings.AntiSpam.SpamScoreValue == 0 ||
@@ -807,35 +807,22 @@ bool HaveUrls(Message msg)
 
 async Task TaskOnMessage(Message msg, UpdateType type)
 {
-    bool haveStory = false;
-    bool haveAudio = false;
-    bool haveSticker = false;
-    bool haveVideo = false;
-    bool haveVideoNote = false;
-    bool haveDocument = false;
-    bool haveDice = false;
-    bool haveGame = false;
-    bool havePoll = false;
-    bool haveLocation = false;
-    bool havePhoto = false;
-    bool haveContact = false;
+    bool haveStory = msg.Type == MessageType.Story || msg.Story is not null;
+    bool haveAudio = msg.Type == MessageType.Audio || msg.Audio is not null;
+    bool haveSticker = msg.Type == MessageType.Sticker || msg.Sticker is not null;
+    bool haveVideo = msg.Type == MessageType.Video || msg.Video is not null;
+    bool haveVideoNote = msg.Type == MessageType.VideoNote || msg.VideoNote is not null;
+    bool haveDocument = msg.Type == MessageType.Document || msg.Document is not null;
+    bool haveDice = msg.Type == MessageType.Dice || msg.Dice is not null;
+    bool haveGame = msg.Type == MessageType.Game || msg.Game is not null;
+    bool havePoll = msg.Type == MessageType.Poll || msg.Poll is not null;
+    bool haveLocation = msg.Type == MessageType.Location || msg.Location is not null;
+    bool havePhoto = msg.Type == MessageType.Photo || msg.Photo is not null;
+    bool haveContact = msg.Type == MessageType.Contact || msg.Contact is not null;
+    
     if (msg.Text is null && !string.IsNullOrEmpty(msg.Caption)) msg.Text = msg.Caption;
     bool haveText = msg.Text is not null;
-
-    if (msg.Story is not null) haveStory = true;
-    if (msg.Audio is not null) haveAudio = true;
-    if (msg.Sticker is not null) haveSticker = true;
-    if (msg.Video is not null) haveVideo = true;
-    if (msg.VideoNote is not null) haveVideoNote = true;
-    if (msg.Document is not null) haveDocument = true;
-    if (msg.Dice is not null) haveDice = true;
-    if (msg.Game is not null) haveGame = true;
-    if (msg.Poll is not null) havePoll = true;
-    if (msg.Location is not null) haveLocation = true;
-    if (msg.Photo is not null) havePhoto = true;
-    if (msg.Contact is not null) haveContact = true;
-
-
+    
     StringBuilder sb = new();
     sb.AppendLine(string.Format("{0} type:{1} msgId {2} from {3} in {4}: ", type.ToString(), msg.Type.ToString(), msg.MessageId, msg.From, msg.Chat));
     /* messageType: NewChatMembers, LeftChatMember*/
@@ -864,20 +851,32 @@ async Task TaskOnMessage(Message msg, UpdateType type)
 
     Log.Info(sb.ToString());
     sb.Clear();
-    if (haveSticker) return;
+    if (haveSticker)
+    {
+        Log.Info("message is sticker, skip");
+        return;
+    }
     long uid = msg.From.Id;
     if (!CheckIfAdminOfChat(msg.Chat.Id, uid))
     {
+        Log.Debug("not an admin of chat");
         if (!haveText)
         {
             await ProcessMessageNoText(msg, sb);
             return;
         }
-
-        if (haveText && await ProcessMessage(msg, sb)) return;
+        if (await ProcessMessage(msg, sb)) return;
+    }
+    else
+    {
+        Log.Debug("admin of chat");
     }
 
-    if (msg.Text is null) return;
+    if (string.IsNullOrWhiteSpace(msg.Text))
+    {
+        Log.Info("no text, skip");
+        return;
+    }
     string[] words = msg.Text.Split(' ');
     if (words.Length == 0) return;
 
