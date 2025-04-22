@@ -1,4 +1,6 @@
-﻿namespace FlexLiveBot;
+﻿using System.Text;
+
+namespace FlexLiveBot;
 
 public static class Helpers
 {
@@ -22,24 +24,7 @@ public static class Helpers
 
     private static readonly Random rnd = new(DateTime.Now.Second);
     public static Random Rnd => rnd;
-    
-    /*
-    public static IEnumerable<T> Get<T>(List<T> list)
-    {
-        if ((list is null) || (list.Count == 0))
-            return Array.Empty<T>();
-        list.Shuffle();
-        int _rnd = Rnd.Next(list.Count - 1);
-        List<T> newlist = new(_rnd);
-        while (_rnd > 0)
-        {
-            newlist.Add(list[_rnd]);
-            _rnd--;
-        }
-        return newlist;
-    }
-    */
-    
+   
     public static void Shuffle<T>(this IList<T> list)
     {
         int n = list.Count;
@@ -51,6 +36,15 @@ public static class Helpers
         }
     }
 
-
+    public static string RemoveDigits(this string text)
+    {
+        StringBuilder sb = new();
+        for (int i = 0; i < text.Length; i++)
+        {
+            if (char.IsDigit(text[i])) continue;
+            sb.Append(text[i]);
+        }
+        return sb.ToString();
+    }
     
 }

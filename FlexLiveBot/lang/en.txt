@@ -158,6 +158,10 @@
     "3080": "Antispam",
     "3081": "Antibadwords",
     "3082": "{0} Block on join \"blacklisted\"",
+    "3083": "Antispam: clean up service messages: <b>{0}</b>",
+    "3084": "Antispam: skip media check: <b>{0}</b>",
+    "3085": "{0} Clean up service messages",
+    "3086": "{0} Skip media check",
   
     
     "4001": "Banlist saved",

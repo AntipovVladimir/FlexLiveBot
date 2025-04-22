@@ -25,6 +25,9 @@ public class AntispamSettings
     public bool RestrictBlacklisted { get; set; }
 
     public bool IgnoreThreads { get; set; }
+    
+    public bool CleanServiceMessages { get; set; }
+    public bool SkipMedia { get; set; }
     #region antispam settings
 
     public string SetSettings(string setting, string value, string locale)
@@ -98,6 +101,12 @@ public class AntispamSettings
                 case "reactonfriends":
                     ReactOnFriends = value.DetectBool(ReactOnFriends);
                     break;
+                case "cleanservicemessages":
+                    CleanServiceMessages  = value.DetectBool(ReactOnFriends);
+                    break;
+                case "skipmedia":
+                    SkipMedia = value.DetectBool(ReactOnFriends);
+                    break; 
             }
         }
 
@@ -122,6 +131,8 @@ public class AntispamSettings
             "maxreactions" => string.Format(Localization.GetText(locale, LangEnum.s_s_maxreactions), MaxReactions),
             "reactionsinterval" => string.Format(Localization.GetText(locale, LangEnum.s_s_reactionsinterval), ReactionsInterval),
             "reactonfriends" => string.Format(Localization.GetText(locale, LangEnum.s_s_reactonfriends), ReactOnFriends),
+            "cleanservicemessages"=>string.Format(Localization.GetText(locale, LangEnum.s_s_as_clean_service_messages), CleanServiceMessages),
+            "skipmedia"=>string.Format(Localization.GetText(locale, LangEnum.s_s_as_skip_media), SkipMedia),
             _ => string.Empty
         };
     }

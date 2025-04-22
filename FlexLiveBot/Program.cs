@@ -193,7 +193,7 @@ async Task<bool> ProcessMessageNoText(Message message, StringBuilder stringBuild
     if (!csettings.AntiSpam.Enabled) return true;
     if (message.Type is MessageType.NewChatMembers or MessageType.LeftChatMember)
     {
-        if (userScore.BanTimes(message.From.Id) > 0)
+        if (csettings.AntiSpam.CleanServiceMessages || userScore.BanTimes(message.From.Id) > 0)
         {
             await bot.DeleteMessage(chatId: message.Chat.Id, messageId: message.MessageId);
             Log.Info("message deleted");
@@ -243,7 +243,8 @@ async Task<bool> ProcessMessageNoText(Message message, StringBuilder stringBuild
     bool haveMedia = message.Story is not null || message.Audio is not null || message.Sticker is not null || message.Video is not null ||
                      message.VideoNote is not null || message.Document is not null || message.Dice is not null || message.Game is not null ||
                      message.Poll is not null || message.Location is not null || message.Photo is not null || message.Contact is not null;
-
+    if (haveMedia && csettings.AntiSpam.SkipMedia)
+        return true;
     spamscore = ProcessForwarded(message, csettings, spamscore, stringBuilder);
 
     userScore.UpdateMemberMetrics(message.From, message.Chat.Id, 0);
@@ -466,7 +467,7 @@ async Task<bool> ProcessBadWords(Message message)
             }
             else
             {
-                antibadwords.Warn(message.From.Id);
+                 antibadwords.Warn(message.From.Id);
                 string tlast = string.Empty;
                 if (!isFriend)
                 {

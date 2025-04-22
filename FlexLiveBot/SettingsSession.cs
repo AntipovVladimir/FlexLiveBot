@@ -287,6 +287,13 @@ public class SettingsSession
                     inlineMarkup.AddButton(string.Format(Localization.GetText(ulang, LangEnum.s_s_as_cleanup_interval), csettings.AntiSpam.AutoCleanup),
                         "setAutoCleanup");
                     inlineMarkup.AddNewRow();
+                    inlineMarkup.AddButton(string.Format(Localization.GetText(ulang, LangEnum.s_s_clean_service_messages),
+                        csettings.AntiSpam.CleanServiceMessages ? "✅" : "❌"), "toggleCleanServiceMessages");
+                    inlineMarkup.AddNewRow();
+                    inlineMarkup.AddButton(string.Format(Localization.GetText(ulang, LangEnum.s_s_skip_media),
+                        csettings.AntiSpam.SkipMedia ? "✅" : "❌"), "toggleSkipMedia");
+
+                    inlineMarkup.AddNewRow();
                     inlineMarkup.AddButton(Localization.GetText(ulang, LangEnum.s_s_back), "return");
                     previousState = currentState;
                     currentState = SettingsState.AntiSpamSettings;
@@ -428,6 +435,12 @@ public class SettingsSession
                         break;
                     case "toggleRestrictBlacklisted":
                         csettings.AntiSpam.RestrictBlacklisted = !csettings.AntiSpam.RestrictBlacklisted;
+                        break;
+                    case "toggleCleanServiceMessages":
+                        csettings.AntiSpam.CleanServiceMessages = !csettings.AntiSpam.CleanServiceMessages;
+                        break;
+                    case "toggleSkipMedia":
+                        csettings.AntiSpam.SkipMedia = !csettings.AntiSpam.SkipMedia;
                         break;
                     case "setDaysToUnban":
                         reply = string.Format(Localization.GetText(ulang, LangEnum.s_s_as_days_to_unban_setup), csettings.AntiSpam.DaysToUnban);

@@ -158,6 +158,11 @@ public enum LangEnum : int
     s_s_antispam = 3080,
     s_s_antibw = 3081,
     s_s_as_restrict_blacklisted = 3082,
+    s_s_as_clean_service_messages = 3083,
+    s_s_as_skip_media = 3084,
+    s_s_clean_service_messages = 3085,
+    s_s_skip_media = 3086,
+    
     /* userscore sections: 4000 - 4999 */
     s_uscore_banlist_saved = 4001,
     s_uscore_owner_trust = 4002,
