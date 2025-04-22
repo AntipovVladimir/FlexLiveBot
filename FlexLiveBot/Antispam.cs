@@ -18,7 +18,7 @@ public class Antispam
     private readonly List<string> Banwords = new();
     private readonly List<string> ExceptionList = new();
     private readonly Regex pattern;
-    public string Version { get; } = "1.2.15";
+    public string Version { get; } = "1.2.16";
     private const string file_stringmap = "lastochka.stringmap.txt";
     private const string file_blacklist = "lastochka.antispam.blacklist";
     private const string file_banwords = "lastochka.antispam.banwords";
